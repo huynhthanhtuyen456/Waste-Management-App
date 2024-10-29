@@ -7,8 +7,16 @@ router = APIRouter(
     tags=["items"],
     dependencies=[Depends(get_token_header)],
     responses={
-        404: {"description": "Not found"},
-        403: {"description": "Forbidden"},
+        404: {
+            "status": False,
+            "message": "Not found",
+            "data": None
+        },
+        403: {
+            "status": False,
+            "message": "Forbidden",
+            "data": None
+        },
     },
 )
 
