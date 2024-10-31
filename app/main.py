@@ -1,11 +1,10 @@
 from fastapi import Depends, FastAPI
 
 from app.dependencies import get_query_token, get_token_header
-from app.routes.public import items, users
+from app.routes.public import wastes, users
 from app.routes.private import admin
 
 app = FastAPI(dependencies=[Depends(get_query_token)])
-
 
 # Public routes
 app.include_router(
@@ -13,7 +12,7 @@ app.include_router(
     prefix="/api/v1",
 )
 app.include_router(
-    items.router,
+    wastes.router,
     prefix="/api/v1"
 )
 

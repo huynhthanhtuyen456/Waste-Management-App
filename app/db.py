@@ -3,7 +3,7 @@ import sys
 
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
-from app.config.prod import get_settings
+from app.config import get_settings
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG if get_settings().debug_logs else logging.INFO)
 logger = logging.getLogger(__name__)
