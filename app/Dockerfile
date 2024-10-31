@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.10
 
 LABEL maintainer="Tuyen Huynh <tuyenhtgcs220307@fpt.edu.vn>"
 LABEL app="Task Service"

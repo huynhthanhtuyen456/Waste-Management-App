@@ -38,3 +38,5 @@ watchfiles==0.24.0
 websockets==13.1
 aioredis==2.0.0
 sqlalchemy==2.0.35
+pyjwt==2.9.0
+passlib[bcrypt]==1.7.4
