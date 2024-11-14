@@ -1,6 +1,6 @@
 from fastapi import Depends, FastAPI
 
-from app.dependencies import get_query_token, get_token_header
+from app.dependencies import get_token_header
 from app.routes.public import wastes, users, auths
 from app.routes.private import admin
 

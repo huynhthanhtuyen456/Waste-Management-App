@@ -5,8 +5,9 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile
-    environment:
-      MONGODB_URL: mongodb://mongo:mongo@mongo/?retryWrites=true&w=majority&appName=Cluster0
+    env_file:
+      .env
+#      MONGODB_URL: mongodb://mongo:mongo@mongo/?retryWrites=true&w=majority&appName=Cluster0
     ports: ['8000:8000']
     volumes:
       - ./app:/app:delegated,rw

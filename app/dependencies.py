@@ -1,13 +1,12 @@
 from typing import Annotated
 
-from fastapi import Header, HTTPException
+from fastapi import HTTPException, Depends
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+from app.utils.utils import get_current_user
 
 
-async def get_token_header(x_token: Annotated[str, Header()]):
-    if x_token != "fake-super-secret-token":
-        raise HTTPException(status_code=400, detail="X-Token header invalid")
-
-
-async def get_query_token(token: str):
-    if token != "jessica":
-        raise HTTPException(status_code=400, detail="No Jessica token provided")
+async def get_token_header(token: Annotated[HTTPAuthorizationCredentials, Depends(HTTPBearer())]):
+    user = await get_current_user(token)
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid token.")

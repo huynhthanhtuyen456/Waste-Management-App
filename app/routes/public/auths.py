@@ -1,22 +1,22 @@
 from datetime import timedelta
-from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, HTTPException
 from starlette import status
 
-from app.models.users import User, Token
-from app.utils.utils import get_current_active_user, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, \
-    authenticate_user, fake_users_db
+from app.db import UserCollection
+from app.models.users import Token
+from app.schemas.users import UserOut, UserAuth, UserCreate
+from app.utils.utils import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, \
+    authenticate_user, get_user, get_password_hash
 
 router = APIRouter()
 
 
 @router.post("/token")
 async def login_for_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    auth_data: UserAuth,
 ) -> Token:
-    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
+    user = authenticate_user(auth_data.email, auth_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -25,6 +25,29 @@ async def login_for_access_token(
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={"sub": user.email}, expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type="bearer")
+
+
+@router.post('/register', summary="Register a new user", response_model=UserOut)
+async def create_user(user_auth: UserCreate):
+    # querying database to check if user already exists
+    user = get_user(user_auth.email)
+
+    if user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User with this email already exist"
+        )
+
+    user = {
+        "email": user_auth.email,
+        "password": get_password_hash(user_auth.password),
+        "first_name": user_auth.first_name,
+        "last_name": user_auth.last_name,
+        "is_active": True,
+        "is_superuser": False,
+    }
+    UserCollection.insert_one(user)
+    return user

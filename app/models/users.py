@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class Token(BaseModel):
@@ -7,11 +7,15 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    username: str | None = None
+    email: str | None = None
+    first_name: str | None = None
+    last_name: str | None = None
 
 
 class User(BaseModel):
-    username: str
-    email: str | None = None
-    full_name: str | None = None
-    disabled: bool | None = None
+    email: EmailStr
+    hashed_password: str
+    first_name: str | None = None
+    last_name: str | None = None
+    is_active: bool = True
+    is_superuser: bool = False

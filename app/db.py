@@ -14,7 +14,7 @@ client = MongoClient(get_settings().mongodb_url, server_api=ServerApi('1'))
 # Send a ping to confirm a successful connection
 
 db = client.admin
-collection = db["dividend_events"]
+UserCollection = db["users"]
 
 try:
     client.admin.command('ping')
