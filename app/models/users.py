@@ -1,25 +1,24 @@
+from datetime import datetime
+
+from odmantic import Model, Reference, Field
 from pydantic import EmailStr
 
 from app.models.roles import Role
-from app.utils.models import BaseModel
 
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
+def datetime_now_sec():
+    return datetime.now().replace(microsecond=0)
 
 
-class TokenData(BaseModel):
-    email: str | None = None
-    first_name: str | None = None
-    last_name: str | None = None
-    role: Role | None = None
+class TokenData(Model):
+    email: str
 
 
-class User(BaseModel):
-    email: EmailStr
-    first_name: str | None = None
-    last_name: str | None = None
-    is_active: bool = True
-    is_superuser: bool = False
-    role: Role
+class User(Model):
+    email: EmailStr = Field(unique=True, index=True)
+    hashed_password: str
+    first_name: str = Field(default="", index=True)
+    last_name: str = Field(default="", index=True)
+    is_active: bool = Field(default=True)
+    is_superuser: bool = Field(default=False)
+    role: Role = Reference()

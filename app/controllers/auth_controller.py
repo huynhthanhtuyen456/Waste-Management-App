@@ -1,0 +1,76 @@
+from datetime import timedelta
+
+from fastapi import HTTPException
+from starlette import status
+
+from app.config import get_settings
+from app.db import engine
+from app.models.roles import Role
+from app.models.users import User
+from app.routes.auths import router
+from app.schemas.tokens import TokenResponseModel
+from app.schemas.users import UserAuthRequestModel, UserRegisterRequestModel, UserRegisterResponseModel
+from app.services import (
+    auths,
+    tokens, users
+)
+from app.utils.enums import RoleEnum
+
+
+@router.post("/token")
+async def obtain_token(
+    auth_data: UserAuthRequestModel,
+) -> TokenResponseModel:
+    user = await auths.authenticate_user(auth_data.email, auth_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=get_settings().access_token_expire_minutes)
+    access_token = tokens.create_access_token(
+        data={
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "full_name": user.first_name + " " + user.last_name,
+            "role": user.role.name
+        },
+        expires_delta=access_token_expires
+    )
+    return TokenResponseModel(access_token=access_token, token_type="bearer")
+
+
+@router.post('/register', summary="Register a new user", response_model=UserRegisterResponseModel)
+async def register(user_auth: UserRegisterRequestModel):
+    # querying database to check if user already exists
+    user = await users.get_user(user_auth.email)
+
+    if user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User with this email already exist"
+        )
+
+    role = await engine.find_one(Role, Role.name == RoleEnum.member)
+
+    if not role:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Role invalid role"
+        )
+
+    user = User(
+        email=user_auth.email,
+        first_name=user_auth.first_name,
+        last_name=user_auth.last_name,
+        password=auths.get_password_hash(user_auth.password),
+        is_active=True,
+        is_superuser=False,
+        hashed_password=auths.get_password_hash(user_auth.password),
+        role=role
+    )
+    user = await engine.save(user)
+
+    return user

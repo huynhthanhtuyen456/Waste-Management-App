@@ -8,12 +8,14 @@ class Settings(BaseSettings):
     mongo_db_host: str = Field(...)
     mongo_db_user: str = Field(...)
     mongo_db_password: str = Field(...)
+    mongo_db: str = Field(...)
     project_name: str = Field(...)
     debug_logs: bool = Field(False)
     version: str = Field(...)
     description: str = Field(...)
     secret_key: str = Field(...)
     algorithm: str = Field(...)
+    access_token_expire_minutes: int = Field(...)
 
     @property
     def mongodb_url(self) -> str:

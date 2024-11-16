@@ -1,20 +1,13 @@
-from app.db import RoleCollection
-from app.models.permissions import Permission
-from app.utils.models import BaseModel
+from bson import ObjectId
+from odmantic import Model, Reference
 
 
-class Role(BaseModel):
+class Permission(Model):
     name: str
     description: str | None = None
 
-    def save(self):
-        return RoleCollection.insert_one(self.__dict__)
 
-    @staticmethod
-    def find_one(filters: dict) -> dict:
-        return RoleCollection.find_one(filters)
-
-
-class RolePermission(BaseModel):
-    role: Role
-    permission: Permission
+class Role(Model):
+    name: str
+    description: str | None = None
+    permission_ids: list[ObjectId]

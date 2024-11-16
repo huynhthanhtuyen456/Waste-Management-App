@@ -1,36 +1,22 @@
 from fastapi import FastAPI
 
-from app.routes import (
-    wastes,
-    users,
-    auths
+from app.controllers import (
+    auth_controller,
+    user_controller,
+    waste_controller,
 )
 
-app = FastAPI()
+app = FastAPI(
+    root_path="/api/v1",
+)
 
 # Public routes
 app.include_router(
-    auths.router,
+    auth_controller.router,
 )
 app.include_router(
-    users.router,
-    prefix="/api/v1",
+    user_controller.router,
 )
 app.include_router(
-    wastes.router,
-    prefix="/api/v1"
+    waste_controller.router,
 )
-
-# Private routes
-# app.include_router(
-#     admin.router,
-#     prefix="/api/v1/admin",
-#     tags=["admin"],
-#     dependencies=[Depends(get_token_header)],
-#     responses={418: {"description": "I'm a teapot"}},
-# )
-
-
-@app.get("/")
-async def root():
-    return {"message": "Hello Waste Management Applications!"}
