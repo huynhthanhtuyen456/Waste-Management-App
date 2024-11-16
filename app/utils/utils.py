@@ -44,13 +44,15 @@ def get_password_hash(password):
 
 def get_user(email: str):
     user = UserCollection.find_one({"email": email})
+    print(f"{user=}")
     if user:
         return UserInDB(
             email=user["email"],
             first_name=user["first_name"],
             last_name=user["last_name"],
-            # is_active=user["is_active"],
-            # is_superuser=user["is_superuser"],
+            is_active=user["is_active"],
+            is_superuser=user["is_superuser"],
+            role=user["role"],
             hashed_password=user["password"],
         )
 
@@ -66,6 +68,7 @@ def authenticate_user(email: str, password: str):
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
+    print(to_encode)
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
@@ -83,7 +86,7 @@ async def get_current_user(token: Annotated[HTTPAuthorizationCredentials, Depend
     )
     try:
         payload = jwt.decode(token.credentials, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
+        email: str = payload.get("email")
         if email is None:
             raise credentials_exception
         token_data = TokenData(email=email)

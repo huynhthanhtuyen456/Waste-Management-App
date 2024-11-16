@@ -15,6 +15,7 @@ client = MongoClient(get_settings().mongodb_url, server_api=ServerApi('1'))
 
 db = client.admin
 UserCollection = db["users"]
+RoleCollection = db["roles"]
 
 try:
     client.admin.command('ping')

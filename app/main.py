@@ -1,8 +1,10 @@
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 
-from app.dependencies import get_token_header
-from app.routes.public import wastes, users, auths
-from app.routes.private import admin
+from app.routes import (
+    wastes,
+    users,
+    auths
+)
 
 app = FastAPI()
 
@@ -20,15 +22,15 @@ app.include_router(
 )
 
 # Private routes
-app.include_router(
-    admin.router,
-    prefix="/api/v1/admin",
-    tags=["admin"],
-    dependencies=[Depends(get_token_header)],
-    responses={418: {"description": "I'm a teapot"}},
-)
+# app.include_router(
+#     admin.router,
+#     prefix="/api/v1/admin",
+#     tags=["admin"],
+#     dependencies=[Depends(get_token_header)],
+#     responses={418: {"description": "I'm a teapot"}},
+# )
 
 
 @app.get("/")
 async def root():
-    return {"message": "Hello Bigger Applications!"}
+    return {"message": "Hello Waste Management Applications!"}

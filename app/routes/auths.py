@@ -6,6 +6,7 @@ from starlette import status
 from app.db import UserCollection
 from app.models.users import Token
 from app.schemas.users import UserOut, UserAuth, UserCreate
+from app.utils.enums import RoleEnum
 from app.utils.utils import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, \
     authenticate_user, get_user, get_password_hash
 
@@ -25,7 +26,12 @@ async def login_for_access_token(
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
+        data={
+            "email": user.email,
+            "full_name": user.first_name + " " + user.last_name,
+            "role": user.role
+        },
+        expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type="bearer")
 
@@ -41,13 +47,13 @@ async def create_user(user_auth: UserCreate):
             detail="User with this email already exist"
         )
 
-    user = {
-        "email": user_auth.email,
-        "password": get_password_hash(user_auth.password),
-        "first_name": user_auth.first_name,
-        "last_name": user_auth.last_name,
-        "is_active": True,
-        "is_superuser": False,
-    }
-    UserCollection.insert_one(user)
+    user = UserCreate(
+        email=user_auth.email,
+        first_name=user_auth.first_name,
+        last_name=user_auth.last_name,
+        password=get_password_hash(user_auth.password),
+    )
+    user.assign_role(RoleEnum.member)
+    UserCollection.insert_one(user.__dict__)
+
     return user
