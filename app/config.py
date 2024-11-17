@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     secret_key: str = Field(...)
     algorithm: str = Field(...)
     access_token_expire_minutes: int = Field(...)
+    first_superuser: str = Field(...)
+    first_superuser_password: str = Field(...)
 
     @property
     def mongodb_url(self) -> str:

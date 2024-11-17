@@ -7,7 +7,7 @@ from jwt import InvalidTokenError
 from starlette import status
 
 from app.config import get_settings
-from app.db import engine
+from app.db.session import engine
 from app.models.users import User, AccessToken
 
 
@@ -32,10 +32,9 @@ async def get_current_user(token: Annotated[HTTPAuthorizationCredentials, Depend
         email: str = payload.get("email")
         if email is None:
             raise credentials_exception
-        token_data = AccessToken(email=email)
     except InvalidTokenError:
         raise credentials_exception
-    user = await get_user(email=token_data.email)
+    user = await get_user(email=email)
     if user is None:
         raise credentials_exception
     return user

@@ -6,7 +6,7 @@ from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt import InvalidTokenError
 
-from app.db import engine
+from app.db.session import engine
 from app.models.users import AccessToken
 from starlette import status
 
@@ -17,7 +17,7 @@ async def verify_jwt_token(token: Annotated[HTTPAuthorizationCredentials, Depend
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
-        headers={"Authorization": "Bearer"},
+        headers={"WWW-Authenticate": "Bearer"},
     )
     try:
         payload = jwt.decode(
