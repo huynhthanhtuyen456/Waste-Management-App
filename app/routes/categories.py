@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
-from app.dependencies.check_role import RoleChecker
-from app.dependencies.verify_token import verify_jwt_token
+from app.middlewares.verify_token import verify_jwt_token
+from app.middlewares.check_role import RoleChecker
 
 router = APIRouter(
     prefix="/waste-categories",

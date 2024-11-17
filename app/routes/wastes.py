@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from app.dependencies.verify_token import verify_jwt_token
+from app.middlewares.verify_token import verify_jwt_token
 
 router = APIRouter(
     prefix="/wastes",
