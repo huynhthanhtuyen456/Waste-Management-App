@@ -5,7 +5,7 @@ from starlette import status
 from app.routes.categories import router
 from app.schemas.categories import CategoryRequestModel, CategoryResponseModel, CategoryDeleteResponseModel
 from app.models.categories import WasteCategory
-from app.db.session import engine
+from app.db import engine
 from app.config import get_settings
 
 
@@ -25,7 +25,7 @@ async def create_category(category: CategoryRequestModel):
     if existed_category:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User with this email already exist"
+            detail=f"Category name={category.name} already exist"
         )
 
     new_category = WasteCategory(
@@ -66,11 +66,10 @@ async def update_category(
             detail=f"Not found category with this id={category_id}"
         )
 
-    existed_category.name = category.name
-    existed_category.description = category.description
-    updated_category = await engine.save(existed_category)
+    existed_category.model_update(category)
+    await engine.save(existed_category)
 
-    return updated_category
+    return existed_category
 
 
 @router.delete('/{category_id}', summary="Delete a new category", response_model=CategoryDeleteResponseModel)

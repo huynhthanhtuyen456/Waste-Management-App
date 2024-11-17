@@ -7,8 +7,8 @@ from jwt import InvalidTokenError
 from starlette import status
 
 from app.config import get_settings
-from app.db.session import engine
-from app.models.users import User, AccessToken
+from app.db import engine
+from app.models.users import User
 
 
 async def get_user(email: str):

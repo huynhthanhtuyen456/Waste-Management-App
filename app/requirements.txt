@@ -39,4 +39,6 @@ websockets==13.1
 aioredis==2.0.0
 sqlalchemy==2.0.35
 pyjwt==2.9.0
-passlib[bcrypt]==1.7.4
+#passlib[bcrypt]==1.7.4
+passlib==1.7.4
+bcrypt==4.2.0

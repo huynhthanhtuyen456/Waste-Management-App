@@ -32,7 +32,7 @@ async def verify_jwt_token(token: Annotated[HTTPAuthorizationCredentials, Depend
             raise credentials_exception
         if email is None:
             raise credentials_exception
-        token = await engine.find_one(AccessToken, {"email": email})
+        token = await engine.find_one(AccessToken, {"email": email, "token": token.credentials})
         if not token:
             raise credentials_exception
     except InvalidTokenError:

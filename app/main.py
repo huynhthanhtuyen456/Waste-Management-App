@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -8,24 +9,21 @@ from app.controllers import (
     auth_controller,
     user_controller,
     waste_controller,
-    category_controller
+    category_controller,
+    challenge_controller,
+    scoring_criteria_controller
 )
+from app.middlewares.router_logging import RouterLoggingMiddleware
 
 
 @asynccontextmanager
 async def app_init(app: FastAPI):
-    app.include_router(
-        auth_controller.router,
-    )
-    app.include_router(
-        user_controller.router,
-    )
-    app.include_router(
-        category_controller.router,
-    )
-    app.include_router(
-        waste_controller.router,
-    )
+    app.include_router(auth_controller.router)
+    app.include_router(user_controller.router)
+    app.include_router(category_controller.router)
+    app.include_router(waste_controller.router)
+    app.include_router(challenge_controller.router)
+    app.include_router(scoring_criteria_controller.router)
     yield
 
 
@@ -50,4 +48,9 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+)
+
+app.add_middleware(
+    RouterLoggingMiddleware,
+    logger=logging.getLogger(__name__)
 )

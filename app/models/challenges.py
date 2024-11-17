@@ -4,10 +4,5 @@ from odmantic import Model, ObjectId
 class Challenge(Model):
     name: str
     description: str
-    difficultyLevel: int
+    difficulty_level: int
     scoring_criteria: list[ObjectId]
-
-
-class ScoringCriteria(Model):
-    criteria: str
-    score: int

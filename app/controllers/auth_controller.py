@@ -6,7 +6,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette import status
 
 from app.config import get_settings
-from app.db.session import engine
+from app.db import engine
 from app.models.roles import Role
 from app.models.users import User, AccessToken
 from app.routes.auths import router
@@ -41,6 +41,10 @@ async def obtain_token(
         },
         expires_delta=access_token_expires
     )
+    existed_token = await engine.find_one(AccessToken, AccessToken.email == user.email)
+    if existed_token:
+        await engine.delete(existed_token)
+
     token = AccessToken(token=access_token, email=user.email)
     await engine.save(token)
     return TokenResponseModel(access_token=access_token, token_type="bearer")
