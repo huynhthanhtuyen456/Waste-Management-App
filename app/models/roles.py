@@ -1,5 +1,4 @@
-from bson import ObjectId
-from odmantic import Model, Reference
+from odmantic import Model, Reference, ObjectId
 
 
 class Permission(Model):

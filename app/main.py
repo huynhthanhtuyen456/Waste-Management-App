@@ -7,6 +7,7 @@ from app.controllers import (
     auth_controller,
     user_controller,
     waste_controller,
+    category_controller
 )
 
 
@@ -17,6 +18,9 @@ async def app_init(app: FastAPI):
     )
     app.include_router(
         user_controller.router,
+    )
+    app.include_router(
+        category_controller.router,
     )
     app.include_router(
         waste_controller.router,

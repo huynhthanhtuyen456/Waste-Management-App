@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = Field(...)
     first_superuser: str = Field(...)
     first_superuser_password: str = Field(...)
+    page_limit: int = Field(...)
 
     @property
     def mongodb_url(self) -> str:
