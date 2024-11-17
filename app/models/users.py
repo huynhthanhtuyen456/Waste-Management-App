@@ -10,8 +10,9 @@ def datetime_now_sec():
     return datetime.now().replace(microsecond=0)
 
 
-class TokenData(Model):
-    email: str
+class AccessToken(Model):
+    email: EmailStr
+    token: str
 
 
 class User(Model):

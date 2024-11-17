@@ -1,12 +1,14 @@
 from datetime import timedelta
+from typing import Annotated
 
-from fastapi import HTTPException
+from fastapi import HTTPException, Depends
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette import status
 
 from app.config import get_settings
 from app.db import engine
 from app.models.roles import Role
-from app.models.users import User
+from app.models.users import User, AccessToken
 from app.routes.auths import router
 from app.schemas.tokens import TokenResponseModel
 from app.schemas.users import UserAuthRequestModel, UserRegisterRequestModel, UserRegisterResponseModel
@@ -39,7 +41,21 @@ async def obtain_token(
         },
         expires_delta=access_token_expires
     )
+    token = AccessToken(token=access_token, email=user.email)
+    await engine.save(token)
     return TokenResponseModel(access_token=access_token, token_type="bearer")
+
+
+@router.get("/revoke-token")
+async def revoke_token(token: Annotated[HTTPAuthorizationCredentials, Depends(HTTPBearer())]):
+    token = await engine.find_one(AccessToken, {"token": token.credentials})
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid token",
+        )
+    await engine.delete(token)
+    return {"message": "Token revoked"}
 
 
 @router.post('/register', summary="Register a new user", response_model=UserRegisterResponseModel)
