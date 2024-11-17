@@ -4,7 +4,6 @@ from odmantic import Model, Reference, Field
 from pydantic import EmailStr
 
 from app.models.roles import Role
-from app.models.wastes import Waste
 
 
 def datetime_now_sec():
@@ -24,4 +23,3 @@ class User(Model):
     is_active: bool = Field(default=True)
     is_superuser: bool = Field(default=False)
     role: Role = Reference()
-    waste_items: list[Waste] | None = None
