@@ -12,12 +12,14 @@ from app.models.wastes import Waste
 from app.routes.wastes import router
 from app.schemas.wastes import WasteRequestModel, WasteResponseModel, WasteUpdateRequestModel, WasteDeleteResponseModel
 from app.services.users import get_current_user
+from app.services.wastes import waste_service
+from app.services.categories import category_service
 
 
 @router.get('', summary="Get list of wastes", response_model=list[WasteResponseModel])
 async def list_waste(page: int = 1, page_break: bool = False):
     offset = {"skip": page * get_settings().MULTI_MAX, "limit": get_settings().MULTI_MAX} if page_break else {}  # noqa
-    wastes = await engine.find(Waste, **offset)
+    wastes = await waste_service.find_wastes(offset)
 
     return wastes
 
@@ -27,7 +29,7 @@ async def create_waste(
         waste: WasteRequestModel,
         token: Annotated[HTTPAuthorizationCredentials, Depends(HTTPBearer())]
 ):
-    existed_waste = await engine.find_one(Waste, {"name": waste.name})
+    existed_waste = await waste_service.find_one({"name": waste.name})
 
     if existed_waste:
         raise HTTPException(
@@ -41,16 +43,7 @@ async def create_waste(
             detail="Category is missing"
         )
 
-    if not waste.user_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User is missing"
-        )
-
-    category = await engine.find_one(
-        WasteCategory,
-        {"_id": waste.category_id}
-    )
+    category = await category_service.find_one({"_id": waste.category_id})
 
     if not category:
         raise HTTPException(
@@ -66,7 +59,7 @@ async def create_waste(
         user=user,
         category=category,
     )
-    inserted_waste = await engine.save(new_waste)
+    inserted_waste = await waste_service.create(new_waste)
 
     return inserted_waste
 
@@ -75,7 +68,7 @@ async def create_waste(
 async def get_a_waste(
         waste_id: ObjectId
 ):
-    existed_waste = await engine.find_one(Waste, {"_id": waste_id})
+    existed_waste = await waste_service.get_by_id(waste_id)
 
     if not existed_waste:
         raise HTTPException(
@@ -90,13 +83,9 @@ async def update_category(
         waste: WasteUpdateRequestModel,
         waste_id: ObjectId
 ):
-    # querying database to check if category already exists
-    existed_waste = await engine.find_one(Waste, {"_id": waste_id})
+    existed_waste = await waste_service.get_by_id(waste_id)
 
-    category = await engine.find_one(
-        WasteCategory,
-        {"_id": waste.category_id}
-    )
+    category = await category_service.find_one({"_id": waste.category_id})
 
     if not category:
         raise HTTPException(
@@ -110,8 +99,7 @@ async def update_category(
             detail=f"Not found waste with this id={waste_id}"
         )
 
-    existed_waste.model_update(waste)
-    await engine.save(existed_waste)
+    await category_service.update(existed_waste, waste)
 
     return existed_waste
 
@@ -120,8 +108,7 @@ async def update_category(
 async def delete_waste(
         waste_id: ObjectId
 ):
-    # querying database to check if challenge already exists
-    existed_waste = await engine.find_one(Waste, {"_id": waste_id})
+    existed_waste = await waste_service.get_by_id(waste_id)
 
     if not existed_waste:
         raise HTTPException(

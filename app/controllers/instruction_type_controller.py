@@ -32,14 +32,14 @@ async def create_instruction_type(instruction_type: WasteInstructionTypeRequestM
         type=instruction_type.type,
         description=instruction_type.description,
     )
-    inserted_instruction = await instruction_type_service.create_instruction_type(new_instance)
+    inserted_instruction = await instruction_type_service.create(new_instance)
 
     return inserted_instruction
 
 
 @router.get('/{type_id}', summary="Get the instruction type", response_model=WasteInstructionTypeResponseModel)
 async def get_instruction_type(type_id: ObjectId):
-    existed_instruction_type = await instruction_type_service.get_type_by_id(type_id)
+    existed_instruction_type = await instruction_type_service.get_by_id(type_id)
 
     if not existed_instruction_type:
         raise HTTPException(
@@ -54,7 +54,7 @@ async def update_instruction_type(
         instruction_type: WasteInstructionTypeRequestModel,
         type_id: ObjectId
 ):
-    existed_instruction_type = await instruction_type_service.get_type_by_id(type_id)
+    existed_instruction_type = await instruction_type_service.get_by_id(type_id)
 
     if not existed_instruction_type:
         raise HTTPException(
@@ -62,7 +62,7 @@ async def update_instruction_type(
             detail=f"Not found Instruction Type with this id={type_id}"
         )
 
-    existed_instruction_type = await instruction_type_service.update_instruction_type(
+    existed_instruction_type = await instruction_type_service.update(
         existed_instruction_type,
         instruction_type
     )
@@ -76,7 +76,7 @@ async def update_instruction_type(
     response_model=WasteInstructionTypeDeleteResponseModel
 )
 async def delete_instruction_type(type_id: ObjectId):
-    existed_instruction_type = await instruction_type_service.get_type_by_id(type_id)
+    existed_instruction_type = await instruction_type_service.get_by_id(type_id)
 
     if not existed_instruction_type:
         raise HTTPException(
@@ -84,6 +84,6 @@ async def delete_instruction_type(type_id: ObjectId):
             detail=f"Not found Instruction Type with this id={type_id}"
         )
 
-    await instruction_type_service.delete_instruction_type(existed_instruction_type)
+    await instruction_type_service.delete(existed_instruction_type)
 
     return WasteInstructionTypeDeleteResponseModel(message=f"Instruction Type deleted with id={type_id}")

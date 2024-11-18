@@ -21,10 +21,10 @@ async def list_instructions(page: int = 1, page_break: bool = False):
 
 @router.post('', summary="Create a new waste instruction", response_model=InstructionResponseModel)
 async def create_instruction(instruction: InstructionRequestModel):
-    existed_instruction = await engine.find_one(WasteInstruction, {"title": instruction.title})
+    existed_instruction = await instruction_service.find_one({"title": instruction.title})
 
-    category = await category_service.get_category_by_id(instruction.category_id)
-    instruction_type = await instruction_type_service.get_type_by_id(instruction.type_id)
+    category = await category_service.get_by_id(instruction.category_id)
+    instruction_type = await instruction_type_service.get_by_id(instruction.type_id)
 
     if not category:
         raise HTTPException(
@@ -50,7 +50,7 @@ async def create_instruction(instruction: InstructionRequestModel):
         category=category,
         type=instruction_type
     )
-    inserted_instruction = await instruction_service.create_instruction(new_instance)
+    inserted_instruction = await instruction_service.create(new_instance)
 
     return inserted_instruction
 
@@ -58,7 +58,7 @@ async def create_instruction(instruction: InstructionRequestModel):
 @router.get('/{instruction_id}', summary="Get a instruction of waste", response_model=InstructionResponseModel)
 async def get_instruction(instruction_id: ObjectId):
     # querying database to check if scoring_criteria already exists
-    existed_instruction = await instruction_service.get_instruction_by_id(instruction_id)
+    existed_instruction = await instruction_service.get_by_id(instruction_id)
 
     if not existed_instruction:
         raise HTTPException(
@@ -69,12 +69,12 @@ async def get_instruction(instruction_id: ObjectId):
     return existed_instruction
 
 @router.put('/{instruction_id}', summary="Update the instruction", response_model=InstructionResponseModel)
-async def update_scoring_criteria(
+async def update_instruction(
         instruction: InstructionRequestModel,
         instruction_id: ObjectId
 ):
     # querying database to check if category already exists
-    existed_instruction = await instruction_service.get_instruction_by_id(instruction_id)
+    existed_instruction = await instruction_service.get_by_id(instruction_id)
 
     if not existed_instruction:
         raise HTTPException(
@@ -97,7 +97,7 @@ async def update_scoring_criteria(
             detail="Typ of instruction does not exist",
         )
 
-    existed_instruction = await instruction_service.update_instruction(existed_instruction, instruction)
+    existed_instruction = await instruction_service.update(existed_instruction, instruction)
 
     return existed_instruction
 
@@ -107,11 +107,11 @@ async def update_scoring_criteria(
     summary="Delete a waste instruction",
     response_model=InstructionDeleteResponseModel
 )
-async def delete_scoring_criteria(
+async def delete_instruction(
         instruction_id: ObjectId
 ):
     # querying database to check if category already exists
-    existed_instruction = await instruction_service.get_instruction_by_id(instruction_id)
+    existed_instruction = await instruction_service.get_by_id(instruction_id)
 
     if not existed_instruction:
         raise HTTPException(
@@ -119,6 +119,6 @@ async def delete_scoring_criteria(
             detail=f"Not found Instruction with this id={instruction_id}"
         )
 
-    await engine.delete(existed_instruction)
+    await instruction_service.delete(instruction_id)
 
     return InstructionDeleteResponseModel(message=f"Instruction deleted with id={instruction_id}")

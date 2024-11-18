@@ -8,7 +8,6 @@ from app.models.users import User
 class WasteRequestModel(BaseModel):
     name: str
     description: str | None = None
-    user_id: ObjectId
     category_id: ObjectId
 
 
