@@ -11,7 +11,9 @@ from app.controllers import (
     waste_controller,
     category_controller,
     challenge_controller,
-    scoring_criteria_controller
+    scoring_criteria_controller,
+    instruction_controller,
+    instruction_type_controller,
 )
 from app.middlewares.router_logging import RouterLoggingMiddleware
 
@@ -24,6 +26,8 @@ async def app_init(app: FastAPI):
     app.include_router(waste_controller.router)
     app.include_router(challenge_controller.router)
     app.include_router(scoring_criteria_controller.router)
+    app.include_router(instruction_controller.router)
+    app.include_router(instruction_type_controller.router)
     yield
 
 

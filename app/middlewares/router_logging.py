@@ -49,12 +49,16 @@ class RouterLoggingMiddleware(BaseHTTPMiddleware):
         }
 
         await self.set_body(request)
-        response, response_dict = await self._log_response(call_next, request, request_id)
-        request_dict = await self._log_request(request)
-        logging_dict["request"] = request_dict
-        logging_dict["response"] = response_dict
-
-        self._logger.info(logging_dict)
+        try:
+            response, response_dict = await self._log_response(call_next, request, request_id)
+            request_dict = await self._log_request(request)
+            logging_dict["request"] = request_dict
+            logging_dict["response"] = response_dict
+        except Exception as e:
+            self._logger.error(str(e))
+            response = await self._execute_request(call_next, request, request_id)
+        else:
+            self._logger.info(logging_dict)
 
         return response
 
