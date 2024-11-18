@@ -42,9 +42,22 @@ services:
     networks:
       - waste_management_net
 
+  redis:
+    image: redis:alpine
+    container_name: redis-cache
+    restart: on-failure
+    ports:
+      - '6379:6379'
+    command: redis-server
+    volumes:
+      - cache:/data
+    networks:
+      - waste_management_net
+
 volumes:
   mongo_db_data:
   backend_data:
+  cache:
 
 networks:
   waste_management_net:

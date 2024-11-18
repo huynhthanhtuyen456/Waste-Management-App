@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     first_superuser: str = Field(...)
     first_superuser_password: str = Field(...)
     page_limit: int = Field(...)
+    redis_server: str = Field(...)
+    redis_port: int = Field(...)
 
     @property
     def mongodb_url(self) -> str:

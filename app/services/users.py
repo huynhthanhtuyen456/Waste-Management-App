@@ -1,3 +1,4 @@
+import pickle
 from typing import Annotated
 
 import jwt
@@ -9,6 +10,8 @@ from starlette import status
 from app.config import get_settings
 from app.db import engine
 from app.models.users import User
+from app.services.cache import cache
+from app.utils.exceptions import EntityDoesNotExist
 
 
 async def get_user(email: str):
@@ -17,7 +20,10 @@ async def get_user(email: str):
         return user
 
 
-async def get_current_user(token: Annotated[HTTPAuthorizationCredentials, Depends(HTTPBearer())]):
+async def get_current_user(
+        token: Annotated[HTTPAuthorizationCredentials, Depends(HTTPBearer())],
+        redis_client: cache = Depends(cache),
+):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -34,10 +40,23 @@ async def get_current_user(token: Annotated[HTTPAuthorizationCredentials, Depend
             raise credentials_exception
     except InvalidTokenError:
         raise credentials_exception
-    user = await get_user(email=email)
-    if user is None:
-        raise credentials_exception
-    return user
+
+    if (cached_profile := redis_client.get(f"profile_{email}")) is not None:
+        return pickle.loads(cached_profile)
+
+    try:
+        user = await get_user(email=email)
+        redis_client.set(f"profile_{user.email}", pickle.dumps(user))
+
+        if user is None:
+            raise credentials_exception
+
+        return user
+
+    except EntityDoesNotExist:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found!"
+        )
 
 
 async def get_current_active_user(
