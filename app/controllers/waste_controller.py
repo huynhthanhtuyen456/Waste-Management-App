@@ -42,7 +42,7 @@ async def create_waste(
             detail="Category is missing"
         )
 
-    category = await category_service.find_one({"_id": waste.category_id})
+    category = await category_service.get_by_id(waste.category_id)
 
     if not category:
         raise HTTPException(

@@ -1,3 +1,4 @@
+import pickle
 from typing import TypeVar, Type
 
 from odmantic import AIOEngine, ObjectId
@@ -5,7 +6,8 @@ from pydantic import BaseModel, ValidationError
 
 from app.db import engine
 from app.db.base_class import Base
-
+from app.services.cache import cache
+from app.utils.exceptions import EntityDoesNotExist
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
@@ -32,20 +34,24 @@ class BaseService:
 
     async def create(self, instance: CreateSchemaType):
         try:
+            instance = self.model.model_validate(instance)
             inserted_data = await self.engine.save(instance)
-        except TypeError as e:
-            raise ValidationError(e)
-        else:
             return inserted_data
+        except (ValidationError, TypeError) as e:
+            raise ValidationError(e)
 
     async def update(
             self,
             instance: ModelType,
             update_instance: UpdateSchemaType
     ):
-        instance.model_update(update_instance)
-        updated_instance = await engine.save(instance)
-        return updated_instance
+        try:
+            self.model.model_validate(update_instance)
+            instance.model_update(update_instance)
+            updated_instance = await engine.save(instance)
+            return updated_instance
+        except (ValidationError, TypeError) as e:
+            raise ValidationError(e)
 
     async def delete(self, instance: ModelType):
         await engine.delete(instance)
