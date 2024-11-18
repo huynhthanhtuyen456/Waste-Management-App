@@ -12,3 +12,10 @@ class ChallengeDifficultyEnum(int, Enum):
     medium = 2
     hard = 3
     VeryHard = 4
+
+
+class ScoreRankEnum(str, Enum):
+    Platinum = "Platinum"
+    Gold = "Gold"
+    Silver = "Silver"
+    Bronze = "Bronze"

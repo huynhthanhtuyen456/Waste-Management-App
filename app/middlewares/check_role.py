@@ -12,7 +12,7 @@ class RoleChecker:
         self.allowed_roles = allowed_roles
 
     def __call__(self, user: Annotated[User, Depends(get_current_active_user)]):
-        if user.role.name.lower() in self.allowed_roles or user.is_superuser:
+        if user.role.name.lower() in self.allowed_roles:
             return True
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

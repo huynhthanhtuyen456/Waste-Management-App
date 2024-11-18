@@ -2,6 +2,7 @@ from odmantic import Reference
 from pydantic import BaseModel, EmailStr
 
 from app.models.roles import Role
+from app.models.users import ScoreRank
 
 
 class UserAuthRequestModel(BaseModel):
@@ -27,7 +28,9 @@ class UserProfileResponse(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
     is_active: bool = True
+    score: int
     role: Role = Reference()
+    rank: ScoreRank | None = None
 
 
 class UserProfileUpdateRequestModel(BaseModel):

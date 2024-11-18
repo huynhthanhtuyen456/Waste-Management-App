@@ -1,4 +1,4 @@
-from odmantic import Model, Reference, ObjectId
+from odmantic import Model, ObjectId
 
 
 class Permission(Model):

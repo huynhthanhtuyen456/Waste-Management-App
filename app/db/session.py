@@ -1,9 +1,9 @@
-from app.config import get_settings
+from app.config import settings
 from motor import motor_asyncio, core
 from odmantic import AIOEngine
 from pymongo.driver_info import DriverInfo
 
-DRIVER_INFO = DriverInfo(name="waste-management-application", version=get_settings().version)
+DRIVER_INFO = DriverInfo(name="waste-management-application", version=settings.version)
 
 
 class _MongoClientSingleton:
@@ -15,14 +15,14 @@ class _MongoClientSingleton:
         if cls.instance is None:
             cls.instance = super(_MongoClientSingleton, cls).__new__(cls)
             cls.instance.mongo_client = motor_asyncio.AsyncIOMotorClient(
-                get_settings().mongodb_url, driver=DRIVER_INFO
+                settings.mongodb_url, driver=DRIVER_INFO
             )
-            cls.instance.engine = AIOEngine(client=cls.instance.mongo_client, database=get_settings().mongo_db)
+            cls.instance.engine = AIOEngine(client=cls.instance.mongo_client, database=settings.mongo_db)
         return cls.instance
 
 
 def get_mongo_database() -> core.AgnosticDatabase:
-    return _MongoClientSingleton().mongo_client[get_settings().mongo_db]
+    return _MongoClientSingleton().mongo_client[settings.mongo_db]
 
 
 def get_engine() -> AIOEngine:

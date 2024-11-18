@@ -87,7 +87,6 @@ async def register(user_auth: UserRegisterRequestModel):
         last_name=user_auth.last_name,
         password=auths.get_password_hash(user_auth.password),
         is_active=True,
-        is_superuser=False,
         hashed_password=auths.get_password_hash(user_auth.password),
         role=role,
     )
