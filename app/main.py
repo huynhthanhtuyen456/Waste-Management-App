@@ -4,37 +4,37 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.config import get_settings
+from app.config import settings
 from app.controllers import (
-    auth_controller,
-    user_controller,
-    waste_controller,
-    category_controller,
-    challenge_controller,
-    scoring_criteria_controller,
-    instruction_controller,
-    instruction_type_controller,
+    AuthController,
+    UserController,
+    WasteController,
+    CategoryController,
+    ChallengeController,
+    ScoringCriteriaController,
+    InstructionController,
+    InstructionTypeController,
 )
 from app.middlewares.router_logging import RouterLoggingMiddleware
 
 
 @asynccontextmanager
 async def app_init(app: FastAPI):
-    app.include_router(auth_controller.router)
-    app.include_router(user_controller.router)
-    app.include_router(category_controller.router)
-    app.include_router(waste_controller.router)
-    app.include_router(challenge_controller.router)
-    app.include_router(scoring_criteria_controller.router)
-    app.include_router(instruction_controller.router)
-    app.include_router(instruction_type_controller.router)
+    app.include_router(AuthController.router)
+    app.include_router(UserController.router)
+    app.include_router(CategoryController.router)
+    app.include_router(WasteController.router)
+    app.include_router(ChallengeController.router)
+    app.include_router(ScoringCriteriaController.router)
+    app.include_router(InstructionController.router)
+    app.include_router(InstructionTypeController.router)
     yield
 
 
 
 app = FastAPI(
     root_path="/api/v1",
-    title=get_settings().project_name,
+    title=settings.project_name,
     lifespan=app_init
 )
 
