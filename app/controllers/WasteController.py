@@ -78,7 +78,7 @@ async def get_a_waste(
     return existed_waste
 
 @router.put('/{waste_id}', summary="Update a new waste", response_model=WasteResponseModel)
-async def update_category(
+async def update_waste(
         waste: WasteUpdateRequestModel,
         waste_id: ObjectId
 ):

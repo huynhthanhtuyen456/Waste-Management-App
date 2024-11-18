@@ -34,7 +34,6 @@ class BaseService:
 
     async def create(self, instance: CreateSchemaType):
         try:
-            instance = self.model.model_validate(instance)
             inserted_data = await self.engine.save(instance)
             return inserted_data
         except (ValidationError, TypeError) as e:
@@ -46,7 +45,6 @@ class BaseService:
             update_instance: UpdateSchemaType
     ):
         try:
-            self.model.model_validate(update_instance)
             instance.model_update(update_instance)
             updated_instance = await engine.save(instance)
             return updated_instance
