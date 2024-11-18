@@ -7,13 +7,12 @@ from starlette import status
 
 from app.config import get_settings
 from app.db import engine
-from app.models.categories import WasteCategory
 from app.models.wastes import Waste
 from app.routes.wastes import router
 from app.schemas.wastes import WasteRequestModel, WasteResponseModel, WasteUpdateRequestModel, WasteDeleteResponseModel
+from app.services.categories import category_service
 from app.services.users import get_current_user
 from app.services.wastes import waste_service
-from app.services.categories import category_service
 
 
 @router.get('', summary="Get list of wastes", response_model=list[WasteResponseModel])
@@ -116,6 +115,6 @@ async def delete_waste(
             detail=f"Not found waste with this id={waste_id}"
         )
 
-    await engine.delete(existed_waste)
+    await waste_service.delete(existed_waste)
 
     return WasteDeleteResponseModel(message=f"Waste deleted with id={waste_id}")
