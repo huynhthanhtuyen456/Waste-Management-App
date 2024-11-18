@@ -98,7 +98,7 @@ async def update_category(
             detail=f"Not found waste with this id={waste_id}"
         )
 
-    await category_service.update(existed_waste, waste)
+    await waste_service.update(existed_waste, waste)
 
     return existed_waste
 
