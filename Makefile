@@ -12,3 +12,6 @@ build_up:
 
 down:
 	docker compose down -v
+
+init_db:
+	docker compose run -it --rm backend python initial_data.py
