@@ -15,6 +15,20 @@ services:
     networks:
       - waste_management_net
 
+  backend_backup:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    env_file:
+      .env
+#      MONGODB_URL: mongodb://mongo:mongo@mongo/?retryWrites=true&w=majority&appName=Cluster0
+    ports: ['8001:8000']
+    volumes:
+      - ./app:/app:delegated,rw
+      - backend_data:/home/app/media
+    networks:
+      - waste_management_net
+
   mongo:
     image: mongo
     restart: always
@@ -53,6 +67,17 @@ services:
       - cache:/data
     networks:
       - waste_management_net
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    ports:
+      - 80:80
+    networks:
+      - waste_management_net
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/nginx.conf
 
 volumes:
   mongo_db_data:
