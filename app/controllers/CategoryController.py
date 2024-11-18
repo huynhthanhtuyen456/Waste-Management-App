@@ -1,18 +1,26 @@
+import pickle
+
 from fastapi import HTTPException
 from odmantic import ObjectId
 from starlette import status
 
+from app.config import settings
+from app.db import engine
+from app.models.categories import WasteCategory
 from app.routes.categories import router
 from app.schemas.categories import CategoryRequestModel, CategoryResponseModel, CategoryDeleteResponseModel
-from app.models.categories import WasteCategory
-from app.db import engine
-from app.config import get_settings
+from app.services.cache import cache
 
 
 @router.get('', summary="Get list of categories", response_model=list[CategoryResponseModel])
 async def list_category(page: int = 1, page_break: bool = False):
-    offset = {"skip": page * get_settings().MULTI_MAX, "limit": get_settings().MULTI_MAX} if page_break else {}  # noqa
+    offset = {"skip": page * settings.MULTI_MAX, "limit": settings.MULTI_MAX} if page_break else {}
+
+    if (cached_categories := cache().get(f"categories")) is not None:
+        return pickle.loads(cached_categories)
+
     categories = await engine.find(WasteCategory, **offset)
+    cache().set(f"categories", pickle.dumps(categories), ex=3600)
 
     return categories
 

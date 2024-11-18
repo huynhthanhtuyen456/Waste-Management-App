@@ -5,8 +5,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from odmantic import ObjectId
 from starlette import status
 
-from app.config import get_settings
-from app.db import engine
+from app.config import settings
 from app.models.wastes import Waste
 from app.routes.wastes import router
 from app.schemas.wastes import WasteRequestModel, WasteResponseModel, WasteUpdateRequestModel, WasteDeleteResponseModel
@@ -17,7 +16,7 @@ from app.services.wastes import waste_service
 
 @router.get('', summary="Get list of wastes", response_model=list[WasteResponseModel])
 async def list_waste(page: int = 1, page_break: bool = False):
-    offset = {"skip": page * get_settings().MULTI_MAX, "limit": get_settings().MULTI_MAX} if page_break else {}  # noqa
+    offset = {"skip": page * settings.MULTI_MAX, "limit": settings.MULTI_MAX} if page_break else {}  # noqa
     wastes = await waste_service.find_wastes(offset)
 
     return wastes

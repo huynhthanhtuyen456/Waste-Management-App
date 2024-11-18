@@ -2,17 +2,17 @@ from fastapi import HTTPException
 from odmantic import ObjectId
 from starlette import status
 
-from app.routes.challenges import router
-from app.schemas.challenges import ChallengeRequestModel, ChallengeResponseModel, ChallengeDeleteResponseModel
+from app.config import settings
+from app.db import engine
 from app.models.challenges import Challenge
 from app.models.scoring_criteria import ScoringCriteria
-from app.db import engine
-from app.config import get_settings
+from app.routes.challenges import router
+from app.schemas.challenges import ChallengeRequestModel, ChallengeResponseModel, ChallengeDeleteResponseModel
 
 
 @router.get('', summary="Get list of challenges", response_model=list[ChallengeResponseModel])
 async def list_challenge(page: int = 1, page_break: bool = False):
-    offset = {"skip": page * get_settings().MULTI_MAX, "limit": get_settings().MULTI_MAX} if page_break else {}  # noqa
+    offset = {"skip": page * settings.MULTI_MAX, "limit": settings.MULTI_MAX} if page_break else {}  # noqa
     categories = await engine.find(Challenge, **offset)
 
     return categories

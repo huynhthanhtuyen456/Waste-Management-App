@@ -5,7 +5,7 @@ from fastapi import HTTPException, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette import status
 
-from app.config import get_settings
+from app.config import settings
 from app.db import engine
 from app.models.roles import Role
 from app.models.users import User, AccessToken
@@ -30,7 +30,7 @@ async def obtain_token(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=get_settings().access_token_expire_minutes)
+    access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
     access_token = tokens.create_access_token(
         data={
             "email": user.email,

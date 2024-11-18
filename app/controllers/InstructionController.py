@@ -2,18 +2,17 @@ from fastapi import HTTPException
 from odmantic import ObjectId
 from starlette import status
 
+from app.config import settings
+from app.models.instructions import WasteInstruction
 from app.routes.instructions import router
 from app.schemas.instructions import InstructionRequestModel, InstructionResponseModel, InstructionDeleteResponseModel
-from app.models.instructions import WasteInstruction
-from app.db import engine
-from app.config import get_settings
 from app.services.categories import category_service
 from app.services.instructions import instruction_type_service, instruction_service
 
 
 @router.get('', summary="Get list of waste instructions", response_model=list[InstructionResponseModel])
 async def list_instructions(page: int = 1, page_break: bool = False):
-    filters = {"skip": page * get_settings().MULTI_MAX, "limit": get_settings().MULTI_MAX} if page_break else {}  # noqa
+    filters = {"skip": page * settings.MULTI_MAX, "limit": settings.MULTI_MAX} if page_break else {}  # noqa
     instructions = await instruction_service.find_instructions(filters=filters)
 
     return instructions

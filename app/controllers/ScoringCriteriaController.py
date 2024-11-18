@@ -2,16 +2,17 @@ from fastapi import HTTPException
 from odmantic import ObjectId
 from starlette import status
 
-from app.routes.scoring_criteria import router
-from app.schemas.scoring_challenge import ScoringCriteriaRequestModel, ScoringCriteriaResponseModel, ScoringCriteriaDeleteResponseModel
-from app.models.scoring_criteria import ScoringCriteria
+from app.config import settings
 from app.db import engine
-from app.config import get_settings
+from app.models.scoring_criteria import ScoringCriteria
+from app.routes.scoring_criteria import router
+from app.schemas.scoring_challenge import ScoringCriteriaRequestModel, ScoringCriteriaResponseModel, \
+    ScoringCriteriaDeleteResponseModel
 
 
 @router.get('', summary="Get list of scoring criteria", response_model=list[ScoringCriteriaResponseModel])
 async def list_scoring_criteria(page: int = 1, page_break: bool = False):
-    offset = {"skip": page * get_settings().MULTI_MAX, "limit": get_settings().MULTI_MAX} if page_break else {}  # noqa
+    offset = {"skip": page * settings.MULTI_MAX, "limit": settings.MULTI_MAX} if page_break else {}  # noqa
     scoring_criteria = await engine.find(ScoringCriteria, **offset)
 
     return scoring_criteria

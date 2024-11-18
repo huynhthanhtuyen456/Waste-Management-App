@@ -1,21 +1,29 @@
+import pickle
+
 from fastapi import HTTPException
 from odmantic import ObjectId
 from starlette import status
 
-from app.config import get_settings
+from app.config import settings
 from app.models.instructions import WasteInstructionType
 from app.routes.instruction_types import router
 from app.schemas.instruction_types import WasteInstructionTypeRequestModel, WasteInstructionTypeResponseModel, \
     WasteInstructionTypeDeleteResponseModel
+from app.services.cache import cache
 from app.services.instructions import instruction_type_service
 
 
 @router.get('', summary="Get list of instruction types", response_model=list[WasteInstructionTypeResponseModel])
 async def list_instruction_types(page: int = 1, page_break: bool = False):
-    filters = {"skip": page * get_settings().MULTI_MAX, "limit": get_settings().MULTI_MAX} if page_break else {}  # noqa
-    instructions = await instruction_type_service.find_types(filters=filters)
+    filters = {"skip": page * settings.MULTI_MAX, "limit": settings.MULTI_MAX} if page_break else {}
 
-    return instructions
+    if (cached_instruction_types := cache().get(f"instruction_types")) is not None:
+        return pickle.loads(cached_instruction_types)
+
+    instruction_types = await instruction_type_service.find_types(filters=filters)
+    cache().set(f"instruction_types", pickle.dumps(instruction_types), ex=3600)
+
+    return instruction_types
 
 
 @router.post('', summary="Create a new instruction type", response_model=WasteInstructionTypeResponseModel)
