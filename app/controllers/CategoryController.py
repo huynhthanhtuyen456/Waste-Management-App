@@ -41,6 +41,7 @@ async def create_category(category: CategoryRequestModel):
         description=category.description,
     )
     inserted_category = await engine.save(new_category)
+    cache().delete(f"categories")
 
     return inserted_category
 

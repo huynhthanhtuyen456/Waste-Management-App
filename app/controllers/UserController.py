@@ -4,6 +4,7 @@ from fastapi import Depends
 
 from app.models.users import User
 from app.routes.users import router
+from app.services.cache import cache
 from app.services.users import get_cached_current_active_user, get_current_active_user
 from app.schemas.users import UserProfileResponse, UserProfileUpdateRequestModel
 
@@ -21,4 +22,5 @@ async def me(
     profile: UserProfileUpdateRequestModel
 ):
     current_user.model_update(profile)
+    cache().delete(f"categories")
     return current_user

@@ -41,7 +41,7 @@ async def create_instruction_type(instruction_type: WasteInstructionTypeRequestM
         description=instruction_type.description,
     )
     inserted_instruction = await instruction_type_service.create(new_instance)
-
+    cache().delete(f"categories")
     return inserted_instruction
 
 
