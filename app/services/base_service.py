@@ -1,4 +1,3 @@
-import pickle
 from typing import TypeVar, Type
 
 from odmantic import AIOEngine, ObjectId
@@ -6,8 +5,6 @@ from pydantic import BaseModel, ValidationError
 
 from app.db import engine
 from app.db.base_class import Base
-from app.services.cache import cache
-from app.utils.exceptions import EntityDoesNotExist
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
