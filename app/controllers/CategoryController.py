@@ -77,6 +77,7 @@ async def update_category(
 
     existed_category.model_update(category)
     await engine.save(existed_category)
+    cache().delete(f"categories")
 
     return existed_category
 
@@ -95,5 +96,6 @@ async def delete_category(
         )
 
     await engine.delete(existed_category)
+    cache().delete(f"categories")
 
     return CategoryDeleteResponseModel(message=f"Category deleted with id={category_id}")

@@ -41,7 +41,7 @@ async def create_instruction_type(instruction_type: WasteInstructionTypeRequestM
         description=instruction_type.description,
     )
     inserted_instruction = await instruction_type_service.create(new_instance)
-    cache().delete(f"categories")
+    cache().delete(f"instruction_types")
     return inserted_instruction
 
 
@@ -74,6 +74,7 @@ async def update_instruction_type(
         existed_instruction_type,
         instruction_type
     )
+    cache().delete(f"instruction_types")
 
     return existed_instruction_type
 
@@ -93,5 +94,6 @@ async def delete_instruction_type(type_id: ObjectId):
         )
 
     await instruction_type_service.delete(existed_instruction_type)
+    cache().delete(f"instruction_types")
 
     return WasteInstructionTypeDeleteResponseModel(message=f"Instruction Type deleted with id={type_id}")
